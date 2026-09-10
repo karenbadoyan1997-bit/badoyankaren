@@ -1,4 +1,4 @@
-import { formatRub } from "@/lib/analysis";
+import { formatAmd } from "@/lib/analysis";
 
 export function StatTiles({
   totalExpenses,
@@ -12,10 +12,10 @@ export function StatTiles({
   avgMonthlyExpenses: number;
 }) {
   const tiles = [
-    { label: "Всего расходов", value: formatRub(totalExpenses) },
-    { label: "Всего доходов", value: formatRub(totalIncome) },
-    { label: "Баланс", value: formatRub(net), positive: net >= 0 },
-    { label: "Средние траты в месяц", value: formatRub(avgMonthlyExpenses) },
+    { label: "Всего расходов", value: formatAmd(totalExpenses) },
+    { label: "Всего доходов", value: formatAmd(totalIncome) },
+    { label: "Баланс", value: formatAmd(net), positive: net >= 0 },
+    { label: "Средние траты в месяц", value: formatAmd(avgMonthlyExpenses) },
   ];
 
   return (

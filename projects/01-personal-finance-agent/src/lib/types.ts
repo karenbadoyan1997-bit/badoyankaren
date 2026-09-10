@@ -17,7 +17,7 @@ export interface Account {
   name: string;
   bank: string;
   type: "Дебетовая карта" | "Кредитная карта" | "Накопительный счёт";
-  currency: "RUB" | "USD" | "EUR";
+  currency: "AMD" | "USD" | "EUR";
 }
 
 export interface Transaction {
@@ -27,7 +27,7 @@ export interface Transaction {
   merchant: string;
   category: Category;
   amount: number; // negative = расход, positive = поступление
-  currency: "RUB" | "USD" | "EUR";
+  currency: "AMD" | "USD" | "EUR";
 }
 
 export interface Insight {

@@ -189,8 +189,8 @@ export function generateInsights(transactions: Transaction[]): Insight[] {
     insights.push({
       id: "recurring",
       severity: "info",
-      title: `${recurring.length} регулярных платежей на ${formatRub(totalRecurring)}/мес`,
-      description: recurring.map((r) => `${r.merchant} — ${formatRub(r.amount)}`).join(", "),
+      title: `${recurring.length} регулярных платежей на ${formatAmd(totalRecurring)}/мес`,
+      description: recurring.map((r) => `${r.merchant} — ${formatAmd(r.amount)}`).join(", "),
     });
   }
 
@@ -200,7 +200,7 @@ export function generateInsights(transactions: Transaction[]): Insight[] {
       id: `trend-${trend.category}`,
       severity: "notice",
       title: `Траты на «${trend.category}» выросли на ${trend.trendPercent}%`,
-      description: `С ${formatRub(trend.months[0].total)} до ${formatRub(trend.months[trend.months.length - 1].total)} за отслеживаемый период.`,
+      description: `С ${formatAmd(trend.months[0].total)} до ${formatAmd(trend.months[trend.months.length - 1].total)} за отслеживаемый период.`,
     });
   }
 
@@ -210,7 +210,7 @@ export function generateInsights(transactions: Transaction[]): Insight[] {
       id: `dup-${d.merchant}-${d.dates.join("-")}`,
       severity: "warning",
       title: `Возможное задвоенное списание: ${d.merchant}`,
-      description: `${formatRub(d.amount)} списано дважды — ${d.dates[0]} и ${d.dates[1]}.`,
+      description: `${formatAmd(d.amount)} списано дважды — ${d.dates[0]} и ${d.dates[1]}.`,
     });
   }
 
@@ -219,7 +219,7 @@ export function generateInsights(transactions: Transaction[]): Insight[] {
     insights.push({
       id: `large-${t.id}`,
       severity: "notice",
-      title: `Крупная операция: ${t.merchant} — ${formatRub(Math.abs(t.amount))}`,
+      title: `Крупная операция: ${t.merchant} — ${formatAmd(Math.abs(t.amount))}`,
       description: `В ${t.deviationMultiple}x больше средней операции (${t.date}).`,
     });
   }
@@ -235,6 +235,6 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
-export function formatRub(n: number) {
-  return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(n);
+export function formatAmd(n: number) {
+  return new Intl.NumberFormat("ru-RU", { style: "currency", currency: "AMD", maximumFractionDigits: 0 }).format(n);
 }

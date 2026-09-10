@@ -1,7 +1,7 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { CategoryTotal, formatRub } from "@/lib/analysis";
+import { CategoryTotal, formatAmd } from "@/lib/analysis";
 import { usePalette } from "@/lib/palette";
 
 export function CategoryBreakdownChart({ data }: { data: CategoryTotal[] }) {
@@ -15,10 +15,10 @@ export function CategoryBreakdownChart({ data }: { data: CategoryTotal[] }) {
       <ResponsiveContainer width="100%" height={Math.max(220, top.length * 40)}>
         <BarChart data={top} layout="vertical" margin={{ left: 8, right: 24 }}>
           <CartesianGrid horizontal={false} stroke={p.grid} />
-          <XAxis type="number" tickFormatter={(v) => formatRub(v)} stroke={p.axis} tick={{ fill: p.muted, fontSize: 12 }} />
+          <XAxis type="number" tickFormatter={(v) => formatAmd(v)} stroke={p.axis} tick={{ fill: p.muted, fontSize: 12 }} />
           <YAxis type="category" dataKey="category" width={140} stroke={p.axis} tick={{ fill: p.textSecondary, fontSize: 12 }} />
           <Tooltip
-            formatter={(value) => formatRub(Number(value))}
+            formatter={(value) => formatAmd(Number(value))}
             contentStyle={{ background: p.surface, border: `1px solid ${p.grid}`, borderRadius: 8, color: p.textPrimary }}
           />
           <Bar dataKey="total" radius={[0, 4, 4, 0]} maxBarSize={28}>

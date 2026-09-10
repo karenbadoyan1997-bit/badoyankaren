@@ -68,7 +68,7 @@ export function parseTransactionsCsv(csvText: string): ParseResult {
       merchant,
       category: normalizeCategory(row.category ?? "Прочее"),
       amount,
-      currency: (row.currency?.trim().toUpperCase() as Transaction["currency"]) || "RUB",
+      currency: (row.currency?.trim().toUpperCase() as Transaction["currency"]) || "AMD",
     });
   });
 

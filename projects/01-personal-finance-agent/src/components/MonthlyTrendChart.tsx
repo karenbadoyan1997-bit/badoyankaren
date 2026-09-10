@@ -1,7 +1,7 @@
 "use client";
 
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { MonthlyTotal, formatRub } from "@/lib/analysis";
+import { MonthlyTotal, formatAmd } from "@/lib/analysis";
 import { usePalette } from "@/lib/palette";
 
 export function MonthlyTrendChart({ data }: { data: MonthlyTotal[] }) {
@@ -15,9 +15,9 @@ export function MonthlyTrendChart({ data }: { data: MonthlyTotal[] }) {
         <LineChart data={data} margin={{ left: 8, right: 24, top: 8 }}>
           <CartesianGrid stroke={p.grid} vertical={false} />
           <XAxis dataKey="month" stroke={p.axis} tick={{ fill: p.muted, fontSize: 12 }} />
-          <YAxis tickFormatter={(v) => formatRub(v)} stroke={p.axis} tick={{ fill: p.muted, fontSize: 12 }} width={90} />
+          <YAxis tickFormatter={(v) => formatAmd(v)} stroke={p.axis} tick={{ fill: p.muted, fontSize: 12 }} width={90} />
           <Tooltip
-            formatter={(value) => formatRub(Number(value))}
+            formatter={(value) => formatAmd(Number(value))}
             contentStyle={{ background: p.surface, border: `1px solid ${p.grid}`, borderRadius: 8, color: p.textPrimary }}
           />
           <Legend wrapperStyle={{ fontSize: 12, color: p.textSecondary }} />

@@ -17,9 +17,9 @@ const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export const ACCOUNTS: Account[] = [
-  { id: "acc-1", name: "Основная дебетовая", bank: "Т-Банк", type: "Дебетовая карта", currency: "RUB" },
-  { id: "acc-2", name: "Кредитная карта", bank: "Альфа-Банк", type: "Кредитная карта", currency: "RUB" },
-  { id: "acc-3", name: "Накопительный счёт", bank: "Сбербанк", type: "Накопительный счёт", currency: "RUB" },
+  { id: "acc-1", name: "Основная дебетовая", bank: "Т-Банк", type: "Дебетовая карта", currency: "AMD" },
+  { id: "acc-2", name: "Кредитная карта", bank: "Альфа-Банк", type: "Кредитная карта", currency: "AMD" },
+  { id: "acc-3", name: "Накопительный счёт", bank: "Сбербанк", type: "Накопительный счёт", currency: "AMD" },
 ];
 
 const MERCHANTS: Record<Category, string[]> = {
@@ -47,7 +47,7 @@ function makeTx(accountId: string, date: Date, merchant: string, category: Categ
     merchant,
     category,
     amount: round2(amount),
-    currency: "RUB",
+    currency: "AMD",
   };
 }
 
@@ -70,15 +70,15 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
 
     // Зарплата
     transactions.push(
-      makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 5), "Зарплата", "Прочее", 180000)
+      makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 5), "Зарплата", "Прочее", 550000)
     );
 
     // Регулярные подписки — одинаковая сумма и день каждый месяц
-    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 3), "Netflix", "Подписки и сервисы", -799));
-    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 3), "Spotify", "Подписки и сервисы", -299));
-    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 10), "Fitness Club", "Подписки и сервисы", -3500));
-    transactions.push(makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 15), "ЖКХ", "Жильё и коммунальные", -8200 + round2(rand() * 600)));
-    transactions.push(makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 16), "Интернет-провайдер", "Жильё и коммунальные", -650));
+    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 3), "Netflix", "Подписки и сервисы", -5490));
+    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 3), "Spotify", "Подписки и сервисы", -2190));
+    transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 10), "Fitness Club", "Подписки и сервисы", -28000));
+    transactions.push(makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 15), "ЖКХ", "Жильё и коммунальные", -38000 + round2(rand() * 3000)));
+    transactions.push(makeTx("acc-1", new Date(monthDate.getFullYear(), monthDate.getMonth(), 16), "Интернет-провайдер", "Жильё и коммунальные", -9900));
 
     // Постепенный рост трат на кафе/рестораны — "категориальный крип"
     const cafeVisits = 8 + m * 2; // растёт от месяца к месяцу
@@ -90,7 +90,7 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
           new Date(monthDate.getFullYear(), monthDate.getMonth(), day),
           pick(MERCHANTS["Кафе и рестораны"]),
           "Кафе и рестораны",
-          -(300 + round2(rand() * 900))
+          -(2500 + round2(rand() * 7000))
         )
       );
     }
@@ -104,7 +104,7 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
           new Date(monthDate.getFullYear(), monthDate.getMonth(), day),
           pick(MERCHANTS["Продукты"]),
           "Продукты",
-          -(1800 + round2(rand() * 2200))
+          -(15000 + round2(rand() * 18000))
         )
       );
     }
@@ -118,7 +118,7 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
           new Date(monthDate.getFullYear(), monthDate.getMonth(), day),
           pick(MERCHANTS["Транспорт"]),
           "Транспорт",
-          -(150 + round2(rand() * 600))
+          -(800 + round2(rand() * 2500))
         )
       );
     }
@@ -134,7 +134,7 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
             new Date(monthDate.getFullYear(), monthDate.getMonth(), day),
             pick(MERCHANTS[cat]),
             cat,
-            -(500 + round2(rand() * 4000))
+            -(4000 + round2(rand() * 30000))
           )
         );
       }
@@ -142,16 +142,16 @@ export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
 
     // Всплеск трат на путешествия — только в предпоследнем месяце
     if (m === monthsBack - 2) {
-      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 12), "Aeroflot", "Путешествия", -34500));
-      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 12), "Booking.com", "Путешествия", -21800));
-      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 20), "РЖД", "Путешествия", -6400));
+      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 12), "Aeroflot", "Путешествия", -220000));
+      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 12), "Booking.com", "Путешествия", -140000));
+      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), 20), "РЖД", "Путешествия", -40000));
     }
 
     // Задвоенное списание — потенциальная ошибка биллинга (последний месяц,
     // через 2 дня после обычного платежа за фитнес-клуб день 10)
     if (m === monthsBack - 1) {
       const day = 12;
-      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), day), "Fitness Club", "Подписки и сервисы", -3500));
+      transactions.push(makeTx("acc-2", new Date(monthDate.getFullYear(), monthDate.getMonth(), day), "Fitness Club", "Подписки и сервисы", -28000));
     }
   }
 
