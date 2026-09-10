@@ -47,7 +47,13 @@ export function Dashboard() {
           </div>
           <AccountBreakdown />
           <PeriodComparison />
-          <InsightsList insights={insights} />
+
+          <div className="pt-6 mt-2 border-t border-black/10 dark:border-white/10">
+            <h2 className="text-xs font-semibold uppercase tracking-wide opacity-50 mb-3">
+              Паттерны и находки
+            </h2>
+            <InsightsList insights={insights} />
+          </div>
         </>
       )}
     </div>
