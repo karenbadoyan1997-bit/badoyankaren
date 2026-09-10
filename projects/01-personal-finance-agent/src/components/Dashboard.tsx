@@ -7,14 +7,15 @@ import { StatTiles } from "./StatTiles";
 import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
 import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { InsightsList } from "./InsightsList";
+import { DateRangeFilter } from "./DateRangeFilter";
 
 export function Dashboard() {
-  const { transactions, hasData } = useFinanceStore();
+  const { hasData, filteredTransactions } = useFinanceStore();
 
-  const stats = useMemo(() => summary(transactions), [transactions]);
-  const categories = useMemo(() => categoryBreakdown(transactions), [transactions]);
-  const months = useMemo(() => monthlyTotals(transactions), [transactions]);
-  const insights = useMemo(() => generateInsights(transactions), [transactions]);
+  const stats = useMemo(() => summary(filteredTransactions), [filteredTransactions]);
+  const categories = useMemo(() => categoryBreakdown(filteredTransactions), [filteredTransactions]);
+  const months = useMemo(() => monthlyTotals(filteredTransactions), [filteredTransactions]);
+  const insights = useMemo(() => generateInsights(filteredTransactions), [filteredTransactions]);
 
   if (!hasData) {
     return (
@@ -26,12 +27,21 @@ export function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <StatTiles {...stats} />
-      <div className="grid md:grid-cols-2 gap-6">
-        <CategoryBreakdownChart data={categories} />
-        <MonthlyTrendChart data={months} />
-      </div>
-      <InsightsList insights={insights} />
+      <DateRangeFilter />
+      {filteredTransactions.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-black/20 dark:border-white/20 p-10 text-center text-sm opacity-60">
+          За выбранный период нет операций — попробуйте расширить диапазон дат.
+        </div>
+      ) : (
+        <>
+          <StatTiles {...stats} />
+          <div className="grid md:grid-cols-2 gap-6">
+            <CategoryBreakdownChart data={categories} />
+            <MonthlyTrendChart data={months} />
+          </div>
+          <InsightsList insights={insights} />
+        </>
+      )}
     </div>
   );
 }

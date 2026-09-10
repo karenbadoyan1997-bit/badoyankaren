@@ -29,8 +29,9 @@ const SUGGESTIONS = [
 
 let msgCounter = 0;
 
-function buildContext(transactions: Transaction[]) {
+function buildContext(transactions: Transaction[], dateFrom: string, dateTo: string) {
   return {
+    period: { from: dateFrom || null, to: dateTo || null },
     summary: summary(transactions),
     categories: categoryBreakdown(transactions),
     months: monthlyTotals(transactions),
@@ -42,7 +43,7 @@ function buildContext(transactions: Transaction[]) {
 }
 
 export function ChatPanel() {
-  const { transactions, hasData } = useFinanceStore();
+  const { filteredTransactions, dateFrom, dateTo, hasData } = useFinanceStore();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: msgCounter++,
@@ -69,7 +70,7 @@ export function ChatPanel() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: text, history, context: buildContext(transactions) }),
+        body: JSON.stringify({ question: text, history, context: buildContext(filteredTransactions, dateFrom, dateTo) }),
       });
 
       if (res.ok) {
@@ -78,11 +79,11 @@ export function ChatPanel() {
         setMessages((prev) => [...prev, { id: msgCounter++, role: "agent", text: data.answer || "…" }]);
       } else {
         setAiStatus("offline");
-        setMessages((prev) => [...prev, { id: msgCounter++, role: "agent", text: answerQuestion(text, transactions) }]);
+        setMessages((prev) => [...prev, { id: msgCounter++, role: "agent", text: answerQuestion(text, filteredTransactions) }]);
       }
     } catch {
       setAiStatus("offline");
-      setMessages((prev) => [...prev, { id: msgCounter++, role: "agent", text: answerQuestion(text, transactions) }]);
+      setMessages((prev) => [...prev, { id: msgCounter++, role: "agent", text: answerQuestion(text, filteredTransactions) }]);
     } finally {
       setIsThinking(false);
     }
@@ -105,6 +106,11 @@ export function ChatPanel() {
                 ? "ИИ недоступен (нет ключа на сервере) — базовый режим по шаблонам."
                 : "Отвечает Claude, если на сервере настроен ANTHROPIC_API_KEY — иначе базовый режим по шаблонам."}
           </p>
+          {(dateFrom || dateTo) && (
+            <p className="text-xs opacity-60 mt-0.5">
+              Период: {dateFrom || "начало"} — {dateTo || "конец"} (фильтр задан на вкладке «Дашборд»)
+            </p>
+          )}
         </div>
         <span
           className={`shrink-0 text-[11px] px-2 py-1 rounded-full font-medium ${

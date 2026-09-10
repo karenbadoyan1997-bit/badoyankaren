@@ -5,9 +5,14 @@ import { Transaction } from "./types";
 
 interface FinanceStore {
   transactions: Transaction[];
+  filteredTransactions: Transaction[];
   hasData: boolean;
   loadTransactions: (txs: Transaction[]) => void;
   clearTransactions: () => void;
+  dateFrom: string; // ISO yyyy-mm-dd, "" = без ограничения снизу
+  dateTo: string; // ISO yyyy-mm-dd, "" = без ограничения сверху
+  setDateRange: (from: string, to: string) => void;
+  availableRange: { min: string; max: string } | null;
 }
 
 const FinanceContext = createContext<FinanceStore | null>(null);
@@ -17,6 +22,8 @@ const STORAGE_KEY = "finance-agent:transactions";
 export function FinanceProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   // Данные хранятся только в браузере пользователя (localStorage) —
   // ничего не отправляется на сервер, это принципиально для конфиденциальности.
@@ -43,14 +50,42 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
   }, [transactions, hydrated]);
 
+  const availableRange = useMemo(() => {
+    if (transactions.length === 0) return null;
+    let min = transactions[0].date;
+    let max = transactions[0].date;
+    for (const t of transactions) {
+      if (t.date < min) min = t.date;
+      if (t.date > max) max = t.date;
+    }
+    return { min, max };
+  }, [transactions]);
+
+  const filteredTransactions = useMemo(() => {
+    if (!dateFrom && !dateTo) return transactions;
+    return transactions.filter((t) => (!dateFrom || t.date >= dateFrom) && (!dateTo || t.date <= dateTo));
+  }, [transactions, dateFrom, dateTo]);
+
   const value = useMemo<FinanceStore>(
     () => ({
       transactions,
+      filteredTransactions,
       hasData: transactions.length > 0,
       loadTransactions: (txs) => setTransactions(txs),
-      clearTransactions: () => setTransactions([]),
+      clearTransactions: () => {
+        setTransactions([]);
+        setDateFrom("");
+        setDateTo("");
+      },
+      dateFrom,
+      dateTo,
+      setDateRange: (from, to) => {
+        setDateFrom(from);
+        setDateTo(to);
+      },
+      availableRange,
     }),
-    [transactions]
+    [transactions, filteredTransactions, dateFrom, dateTo, availableRange]
   );
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
