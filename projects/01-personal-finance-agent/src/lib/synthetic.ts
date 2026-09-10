@@ -59,9 +59,9 @@ function makeTx(accountId: string, date: Date, merchant: string, category: Categ
  *  - всплеск трат на путешествия в один месяц
  *  - задвоенное списание (потенциальная ошибка биллинга)
  */
-export function generateSyntheticTransactions(monthsBack = 6): Transaction[] {
+export function generateSyntheticTransactions(monthsBack = 6, endMonth: Date = new Date()): Transaction[] {
   const transactions: Transaction[] = [];
-  const today = new Date();
+  const today = endMonth;
   const startMonth = new Date(today.getFullYear(), today.getMonth() - (monthsBack - 1), 1);
 
   for (let m = 0; m < monthsBack; m++) {

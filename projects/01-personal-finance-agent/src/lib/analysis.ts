@@ -29,6 +29,27 @@ export function categoryBreakdown(transactions: Transaction[]): CategoryTotal[] 
     .sort((a, b) => b.total - a.total);
 }
 
+export interface AccountTotal {
+  accountId: string;
+  expenses: number;
+  income: number;
+  transactionCount: number;
+}
+
+export function accountBreakdown(transactions: Transaction[]): AccountTotal[] {
+  const map = new Map<string, AccountTotal>();
+  for (const t of transactions) {
+    const entry = map.get(t.accountId) ?? { accountId: t.accountId, expenses: 0, income: 0, transactionCount: 0 };
+    if (t.amount < 0) entry.expenses += Math.abs(t.amount);
+    else entry.income += t.amount;
+    entry.transactionCount += 1;
+    map.set(t.accountId, entry);
+  }
+  return [...map.values()]
+    .map((e) => ({ ...e, expenses: round2(e.expenses), income: round2(e.income) }))
+    .sort((a, b) => b.expenses - a.expenses);
+}
+
 export interface MonthlyTotal {
   month: string; // yyyy-mm
   expenses: number;

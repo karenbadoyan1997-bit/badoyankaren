@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useFinanceStore } from "@/lib/store";
 import { answerQuestion } from "@/lib/chatEngine";
 import {
@@ -28,6 +28,13 @@ const SUGGESTIONS = [
 ];
 
 let msgCounter = 0;
+const CHAT_STORAGE_KEY = "finance-agent:chat-messages";
+
+const GREETING: Message = {
+  id: msgCounter++,
+  role: "agent",
+  text: "Привет! Загрузите данные и спрашивайте про свои траты — например, «на что я чаще всего трачу деньги».",
+};
 
 function buildContext(transactions: Transaction[], dateFrom: string, dateTo: string) {
   return {
@@ -44,16 +51,49 @@ function buildContext(transactions: Transaction[], dateFrom: string, dateTo: str
 
 export function ChatPanel() {
   const { filteredTransactions, dateFrom, dateTo, hasData } = useFinanceStore();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: msgCounter++,
-      role: "agent",
-      text: "Привет! Загрузите данные и спрашивайте про свои траты — например, «на что я чаще всего трачу деньги».",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([GREETING]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [aiStatus, setAiStatus] = useState<"unknown" | "online" | "offline">("unknown");
+  const [hydrated, setHydrated] = useState(false);
+
+  // История чата хранится только в браузере пользователя (localStorage),
+  // как и остальные данные — сервер её не видит.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+      if (raw) {
+        const saved: Message[] = JSON.parse(raw);
+        if (saved.length > 0) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage after mount, not SSR-safe as a lazy initializer
+          setMessages(saved);
+          msgCounter = Math.max(...saved.map((m) => m.id)) + 1;
+        }
+      }
+    } catch {
+      // игнорируем повреждённые данные в localStorage
+    } finally {
+      setHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // localStorage может быть недоступен — не критично
+    }
+  }, [messages, hydrated]);
+
+  function clearChat() {
+    setMessages([GREETING]);
+    try {
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    } catch {
+      // не критично
+    }
+  }
 
   async function send(text: string) {
     if (!text.trim() || isThinking) return;
@@ -112,17 +152,27 @@ export function ChatPanel() {
             </p>
           )}
         </div>
-        <span
-          className={`shrink-0 text-[11px] px-2 py-1 rounded-full font-medium ${
-            aiStatus === "online"
-              ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
-              : aiStatus === "offline"
-                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
-                : "bg-black/5 text-black/60 dark:bg-white/10 dark:text-white/60"
-          }`}
-        >
-          {aiStatus === "online" ? "ИИ активен" : aiStatus === "offline" ? "Базовый режим" : "—"}
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          <span
+            className={`text-[11px] px-2 py-1 rounded-full font-medium ${
+              aiStatus === "online"
+                ? "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300"
+                : aiStatus === "offline"
+                  ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                  : "bg-black/5 text-black/60 dark:bg-white/10 dark:text-white/60"
+            }`}
+          >
+            {aiStatus === "online" ? "ИИ активен" : aiStatus === "offline" ? "Базовый режим" : "—"}
+          </span>
+          {messages.length > 1 && (
+            <button
+              onClick={clearChat}
+              className="text-[11px] px-2 py-1 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+            >
+              Очистить чат
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">

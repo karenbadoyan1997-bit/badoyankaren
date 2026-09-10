@@ -6,6 +6,7 @@ import { Transaction } from "./types";
 interface FinanceStore {
   transactions: Transaction[];
   filteredTransactions: Transaction[];
+  dateFilteredTransactions: Transaction[]; // фильтр по датам, без фильтра по счёту — для разбивки по счетам
   hasData: boolean;
   loadTransactions: (txs: Transaction[]) => void;
   clearTransactions: () => void;
@@ -13,6 +14,9 @@ interface FinanceStore {
   dateTo: string; // ISO yyyy-mm-dd, "" = без ограничения сверху
   setDateRange: (from: string, to: string) => void;
   availableRange: { min: string; max: string } | null;
+  accountFilter: string | null; // null = все счета
+  setAccountFilter: (accountId: string | null) => void;
+  availableAccounts: string[];
 }
 
 const FinanceContext = createContext<FinanceStore | null>(null);
@@ -24,6 +28,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [accountFilter, setAccountFilter] = useState<string | null>(null);
 
   // Данные хранятся только в браузере пользователя (localStorage) —
   // ничего не отправляется на сервер, это принципиально для конфиденциальности.
@@ -61,21 +66,30 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return { min, max };
   }, [transactions]);
 
-  const filteredTransactions = useMemo(() => {
-    if (!dateFrom && !dateTo) return transactions;
+  const availableAccounts = useMemo(() => {
+    return [...new Set(transactions.map((t) => t.accountId))].sort();
+  }, [transactions]);
+
+  const dateFilteredTransactions = useMemo(() => {
     return transactions.filter((t) => (!dateFrom || t.date >= dateFrom) && (!dateTo || t.date <= dateTo));
   }, [transactions, dateFrom, dateTo]);
+
+  const filteredTransactions = useMemo(() => {
+    return dateFilteredTransactions.filter((t) => !accountFilter || t.accountId === accountFilter);
+  }, [dateFilteredTransactions, accountFilter]);
 
   const value = useMemo<FinanceStore>(
     () => ({
       transactions,
       filteredTransactions,
+      dateFilteredTransactions,
       hasData: transactions.length > 0,
       loadTransactions: (txs) => setTransactions(txs),
       clearTransactions: () => {
         setTransactions([]);
         setDateFrom("");
         setDateTo("");
+        setAccountFilter(null);
       },
       dateFrom,
       dateTo,
@@ -84,8 +98,20 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         setDateTo(to);
       },
       availableRange,
+      accountFilter,
+      setAccountFilter,
+      availableAccounts,
     }),
-    [transactions, filteredTransactions, dateFrom, dateTo, availableRange]
+    [
+      transactions,
+      filteredTransactions,
+      dateFilteredTransactions,
+      dateFrom,
+      dateTo,
+      availableRange,
+      accountFilter,
+      availableAccounts,
+    ]
   );
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;

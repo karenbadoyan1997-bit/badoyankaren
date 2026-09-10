@@ -8,6 +8,10 @@ import { CategoryBreakdownChart } from "./CategoryBreakdownChart";
 import { MonthlyTrendChart } from "./MonthlyTrendChart";
 import { InsightsList } from "./InsightsList";
 import { DateRangeFilter } from "./DateRangeFilter";
+import { AccountBreakdown } from "./AccountBreakdown";
+import { PeriodComparison } from "./PeriodComparison";
+import { SavingsGoal } from "./SavingsGoal";
+import { ExportButtons } from "./ExportButtons";
 
 export function Dashboard() {
   const { hasData, filteredTransactions } = useFinanceStore();
@@ -28,6 +32,8 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <DateRangeFilter />
+      <ExportButtons />
+      <SavingsGoal />
       {filteredTransactions.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-black/20 dark:border-white/20 p-10 text-center text-sm opacity-60">
           За выбранный период нет операций — попробуйте расширить диапазон дат.
@@ -39,6 +45,8 @@ export function Dashboard() {
             <CategoryBreakdownChart data={categories} />
             <MonthlyTrendChart data={months} />
           </div>
+          <AccountBreakdown />
+          <PeriodComparison />
           <InsightsList insights={insights} />
         </>
       )}

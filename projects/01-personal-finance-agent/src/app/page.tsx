@@ -19,12 +19,12 @@ function AppShell() {
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="border-b border-black/10 dark:border-white/10 px-6 py-4">
+      <header className="border-b border-black/10 dark:border-white/10 px-6 py-4 print:hidden">
         <h1 className="text-xl font-semibold">Персональный финансовый ассистент</h1>
         <p className="text-sm opacity-60">Учебный проект ACA — анализ трат по выпискам, синтетические данные</p>
       </header>
 
-      <nav className="flex gap-1 px-6 pt-4">
+      <nav className="flex gap-1 px-6 pt-4 print:hidden">
         {TABS.map((t) => (
           <button
             key={t.id}

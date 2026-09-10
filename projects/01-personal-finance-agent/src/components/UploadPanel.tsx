@@ -54,11 +54,20 @@ export function UploadPanel() {
 
   function handleDemoData() {
     setErrors([]);
-    const demo = generateSyntheticTransactions(6);
-    setSources([{ name: "синтетические данные (демо)", count: demo.length }]);
+    // Каждая следующая генерация добавляет более РАННИЙ период (продлевает историю
+    // назад), а не тот же самый — иначе повторный клик задублировал бы уже
+    // загруженные операции (особенно регулярные подписки на те же числа месяца).
+    let endMonth = new Date();
+    if (transactions.length > 0) {
+      const earliestDate = transactions.reduce((min, t) => (t.date < min ? t.date : min), transactions[0].date);
+      endMonth = new Date(earliestDate);
+      endMonth.setDate(endMonth.getDate() - 1);
+    }
+    const demo = generateSyntheticTransactions(6, endMonth);
+    setSources((prev) => [...prev, { name: "синтетические данные (демо)", count: demo.length }]);
     setLastSyntheticCount(demo.length);
     setTotalSyntheticGenerated((prev) => prev + demo.length);
-    loadTransactions(demo);
+    loadTransactions([...transactions, ...demo]);
   }
 
   function handleDownloadSample() {
