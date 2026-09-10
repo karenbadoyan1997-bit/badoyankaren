@@ -17,6 +17,8 @@ export function UploadPanel() {
   const [sources, setSources] = useState<Source[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [lastSyntheticCount, setLastSyntheticCount] = useState<number | null>(null);
+  const [totalSyntheticGenerated, setTotalSyntheticGenerated] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function isAccepted(file: File) {
@@ -54,6 +56,8 @@ export function UploadPanel() {
     setErrors([]);
     const demo = generateSyntheticTransactions(6);
     setSources([{ name: "синтетические данные (демо)", count: demo.length }]);
+    setLastSyntheticCount(demo.length);
+    setTotalSyntheticGenerated((prev) => prev + demo.length);
     loadTransactions(demo);
   }
 
@@ -142,6 +146,15 @@ export function UploadPanel() {
           </button>
         )}
       </div>
+
+      {lastSyntheticCount !== null && (
+        <div className="text-sm space-y-0.5">
+          <p>Загружено {lastSyntheticCount} операций (синтетика).</p>
+          <p className="opacity-60 text-xs">
+            Всего сгенерировано синтетических операций за эту сессию: {totalSyntheticGenerated}.
+          </p>
+        </div>
+      )}
 
       {sources.length > 0 && (
         <div className="text-sm space-y-1">
